@@ -1,0 +1,14 @@
+# pyTelegramBotAPI
+python-telegram-bot==13.5
+pyyaml
+# sqlite3
+openai
+python-dotenv
+
+black
+black[jupyter]
+flake8
+isort
+pip-tools
+pre-commit
+ipykernel
