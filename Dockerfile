@@ -27,4 +27,4 @@ COPY personas.yml .
 
 # Expose port and start app 
 # EXPOSE 80
-CMD ["python", "chatgram/main.py"]
+CMD ["python", "main.py"]
