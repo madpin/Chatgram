@@ -30,7 +30,13 @@ class TGPersona:
             try:
                 self.personas_yaml = yaml.safe_load(stream)
                 return {
-                    name: Chatbot(**data) for name, data in self.personas_yaml.items()
+                    name: Chatbot(
+                        **data["model"],
+                        allowed_users=None
+                        if "allowed_users" not in data
+                        else list(map(str.strip, data["allowed_users"].split(","))),
+                    )
+                    for name, data in self.personas_yaml.items()
                 }
             except yaml.YAMLError as exc:
                 print(exc)
@@ -72,9 +78,9 @@ class TGPersona:
                 ]
             )
 
-
         reply_markup = InlineKeyboardMarkup(keyboard)
-
+        print(f"update.effective_chat.id: {update.effective_chat.id}")
+        print(f"update.effective_user.username: {update.effective_user.username}")
         context.bot.send_message(
             chat_id=update.effective_chat.id,
             # text="__________ Choose a persona: __________",
@@ -94,7 +100,7 @@ class TGPersona:
     def choose_persona(self, update: Update, context: CallbackContext) -> None:
         persona_name = context.args[0] if context.args else None
         # If persona_name is not None, then the user has sent a command
-        
+
         # If persona_name is None, then the user has clicked a button
         if persona_name is None:
             query = update.callback_query

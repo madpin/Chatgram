@@ -5,7 +5,7 @@ from TGPersonas import TGPersona
 
 # Load .env file
 load_dotenv()
-
+print("Starting now...")
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
