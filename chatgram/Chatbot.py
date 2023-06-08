@@ -1,10 +1,12 @@
 import os
-from dotenv import load_dotenv
 import sqlite3
-from typing import List, Tuple
 from datetime import datetime
-import openai
 from pprint import pprint
+from typing import List, Tuple
+
+import openai
+from dotenv import load_dotenv
+from model import Message, session
 
 # Load .env file
 load_dotenv()
@@ -54,31 +56,37 @@ class Chatbot:
         self.presence_penalty = presence_penalty
         self.allowed_users = allowed_users
 
-        self.conn = sqlite3.connect(db_path, check_same_thread=False)
+        # self.conn = sqlite3.connect(db_path, check_same_thread=False)
 
-        self.conn.row_factory = sqlite3.Row
-        self.setup_db()
+        # self.conn.row_factory = sqlite3.Row
+        # self.setup_db()
 
-    def setup_db(self):
-        """Create the SQLite database table."""
-        cursor = self.conn.cursor()
-        cursor.execute(
-            """
-            CREATE TABLE IF NOT EXISTS chats (
-                id INTEGER PRIMARY KEY,
-                chat_instance TEXT NOT NULL,
-                message TEXT NOT NULL,
-                token_count INTEGER,
-                role TEXT,
-                user TEXT,
-                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-            """
-        )
-        self.conn.commit()
+    # def setup_db(self):
+    #     """Create the SQLite database table."""
+    #     cursor = self.conn.cursor()
+    #     cursor.execute(
+    #         """
+    #         CREATE TABLE IF NOT EXISTS chats (
+    #             id INTEGER PRIMARY KEY,
+    #             chat_instance TEXT NOT NULL,
+    #             message TEXT NOT NULL,
+    #             token_count INTEGER,
+    #             role TEXT,
+    #             user TEXT,
+    #             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+    #         )
+    #         """
+    #     )
+    #     self.conn.commit()
 
     def save_message(
-        self, chat_instance: str, message: str, token_count: int, role: str, user: str
+        self,
+        chat_instance: str,
+        message: str,
+        token_count: int,
+        role: str,
+        user: str,
+        extra_info: dict = None,
     ):
         """Save a message to the database.
 
@@ -89,15 +97,16 @@ class Chatbot:
             role (str): Either "user" or "bot".
             user (str): The name of the user who sent the message.
         """
-        cursor = self.conn.cursor()
-        cursor.execute(
-            """
-        INSERT INTO chats (chat_instance, message, token_count, role, user)
-        VALUES (?, ?, ?, ?, ?)
-        """,
-            (chat_instance, message, token_count, role, user),
+        message = Message(
+            chat_instance=chat_instance,
+            message=message,
+            token_count=token_count,
+            role=role,
+            user=user,
+            extra_info=extra_info,
         )
-        self.conn.commit()
+        session.add(message)
+        session.commit()
 
     def get_recent_messages(
         self,
@@ -114,29 +123,45 @@ class Chatbot:
         Returns:
             List[Tuple]: A list of (message, role) tuples.
         """
-        cursor = self.conn.cursor()
-        cursor.execute(
-            """
-        SELECT message, role
-        FROM chats
-        WHERE chat_instance = ?
-        and user = ?
-        ORDER BY timestamp DESC
-        """,
-            (chat_instance, user),
+        # cursor = self.conn.cursor()
+        # cursor.execute(
+        #     """
+        # SELECT message, role
+        # FROM chats
+        # WHERE chat_instance = ?
+        # and user = ?
+        # ORDER BY timestamp DESC
+        # """,
+        #     (chat_instance, user),
+        # )
+
+        messages = (
+            session.query(Message)
+            .filter_by(chat_instance=chat_instance, user=user)
+            .order_by(Message.created_at.desc())
+            .limit(25)
         )
 
         result = []
         total_chars = 0
-        for row in cursor:
-            total_chars += len(row["message"])
+        for message in messages:
+            total_chars += len(message.message)
             if total_chars > max_chars:
                 break
-            result.append({"message": row["message"], "role": row["role"]})
+            result.append(
+                {
+                    "message": message.message,
+                    "role": message.role,
+                }
+            )
         return result
 
     def generate_message(
-        self, chat_instance: str, user_message: str, user: str = "Unknown User"
+        self,
+        chat_instance: str,
+        user_message: str,
+        user: str = "Unknown User",
+        extra_info: dict = None,
     ):
         """Generate a response to a user message.
 
@@ -155,7 +180,7 @@ class Chatbot:
         response = self.openai_generate_response(recent_messages, user_message)
         response_text = response["choices"][0]["message"]["content"]
         token_count = response["usage"]["total_tokens"]
-        self.save_message(chat_instance, user_message, len(user_message), "user", user)
+        self.save_message(chat_instance, user_message, None, "user", user, extra_info)
 
         self.save_message(chat_instance, response_text, token_count, "bot", user)
 
@@ -180,7 +205,7 @@ class Chatbot:
             formatted_messages.append({"role": role, "content": msg["message"]})
 
         formatted_messages.append({"role": "user", "content": message})
-
+        print(formatted_messages)
         return openai.ChatCompletion.create(
             model=self.model,
             messages=formatted_messages,
@@ -189,9 +214,9 @@ class Chatbot:
             presence_penalty=self.presence_penalty,
         )
 
-    def close(self):
-        """Close the database connection."""
-        self.conn.close()
+    # def close(self):
+    #     """Close the database connection."""
+    #     self.conn.close()
 
 
 if __name__ == "__main__":

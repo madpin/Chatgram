@@ -1,16 +1,17 @@
 import random
+
 import yaml
-from telegram import Update, Bot
-from telegram.ext import (
-    Updater,
-    CommandHandler,
-    MessageHandler,
-    Filters,
-    CallbackContext,
-)
+import uuid
 from Chatbot import Chatbot
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import CallbackQueryHandler
+from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import (
+    CallbackContext,
+    CallbackQueryHandler,
+    CommandHandler,
+    Filters,
+    MessageHandler,
+    Updater,
+)
 
 
 class TGPersona:
@@ -41,8 +42,8 @@ class TGPersona:
             except yaml.YAMLError as exc:
                 print(exc)
 
-    def get_chat_instance(self, user):
-        return user + str(random.randint(1000, 99999))
+    def get_chat_instance(self):
+        return str(uuid.uuid4())
 
     def start(self, update: Update, context: CallbackContext) -> None:
         """Sends a welcome message to the user."""
@@ -89,6 +90,7 @@ class TGPersona:
         )
 
     def callback_query(self, update: Update, context: CallbackContext) -> None:
+        print("callback_query")
         query = update.callback_query
         query.answer()
 
@@ -109,7 +111,7 @@ class TGPersona:
 
         if persona_name in self.personas:
             self.current_persona = self.personas[persona_name]
-            self.chat_instance = self.get_chat_instance(update.effective_user.username)
+            self.chat_instance = self.get_chat_instance()
             context.bot.send_message(
                 chat_id=update.effective_chat.id,
                 text=f"You've chosen the {persona_name} persona!",
@@ -123,7 +125,7 @@ class TGPersona:
 
     def echo_all(self, update: Update, context: CallbackContext) -> None:
         if update.message.text == "--":
-            self.chat_instance = self.get_chat_instance(update.effective_user.username)
+            self.chat_instance = self.get_chat_instance()
             context.bot.send_message(
                 chat_id=update.effective_chat.id, text="Chat context has been cleared."
             )
@@ -133,6 +135,13 @@ class TGPersona:
                     self.chat_instance,
                     update.message.text,
                     user=update.effective_user.username,
+                    extra_info={
+                        "chat_id": update.effective_chat.id,
+                        "chat_location": update.effective_chat.location,
+                        "user_username": update.effective_user.username,
+                        "user_name": update.effective_user.name,
+                        "user_id": update.effective_user.id,
+                    }
                 )
             except Exception as e:
                 response = f"Error: {e}"
