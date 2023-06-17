@@ -4,11 +4,12 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-    image: chatbot
-    container_name: chatbot
+    image: carolbot
+    container_name: carolbot
     restart: always
     # ports:
     #   - "5000:5000"
     env_file: .env
-    # volumes:
-    #   - ./chatbot:/app
+    volumes:
+      # - ./chatbot:/app
+      - ./db:/app/db

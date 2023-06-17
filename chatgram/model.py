@@ -2,7 +2,7 @@ from sqlalchemy import JSON, Column, DateTime, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-engine = create_engine("sqlite:///chatbot_v2.db")
+engine = create_engine("sqlite:///db/chatbot_v2.db")
 Session = sessionmaker(bind=engine)
 session = Session()
 
