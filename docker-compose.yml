@@ -4,8 +4,8 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-    image: carolbot
-    container_name: carolbot
+    image: chatgrambot
+    container_name: chatgrambot
     restart: always
     # ports:
     #   - "5000:5000"
