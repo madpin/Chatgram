@@ -20,6 +20,8 @@ RUN pip install -r requirements.frozen
 COPY chatgram/main.py . 
 COPY chatgram/Chatbot.py .
 COPY chatgram/TGPersonas.py .
+COPY chatgram/model.py .
+COPY chatgram/NiceGui.py .
 COPY personas.yml .
 
 # Build app
