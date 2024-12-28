@@ -1,0 +1,3 @@
+.env filter=git-crypt diff=git-crypt
+personas.yml filter=git-crypt diff=git-crypt
+personas copy.yml filter=git-crypt diff=git-crypt
