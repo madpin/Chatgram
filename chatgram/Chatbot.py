@@ -13,9 +13,11 @@ load_dotenv()
 
 # Get API key from .env
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_API_BASE = os.getenv("OPENAI_API_BASE")
 
 # Set OpenAI key
 openai.api_key = OPENAI_API_KEY
+openai.api_base = OPENAI_API_BASE
 
 
 class Chatbot:
@@ -24,7 +26,7 @@ class Chatbot:
     def __init__(
         self,
         system_message="Your name is Turbo",
-        model="gpt-3.5-turbo",
+        model="gpt-4o-mini",
         tokens=750,
         db_path="chat.db",
         temperature=1,
@@ -100,7 +102,7 @@ class Chatbot:
         message = Message(
             chat_instance=chat_instance,
             message=message,
-            token_count=token_count,
+            token_count=self.tokens,
             role=role,
             user=user,
             extra_info=extra_info,
