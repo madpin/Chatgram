@@ -10,24 +10,24 @@ def setup_logging() -> None:
     """Configure logging for both file and console output."""
     logs_dir = Path("logs")
     logs_dir.mkdir(exist_ok=True)
-    
+
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         handlers=[
             logging.FileHandler(logs_dir / "chatgram.log"),
-            logging.StreamHandler()
-        ]
+            logging.StreamHandler(),
+        ],
     )
 
 
 def main() -> None:
     """Entry point for the ChatGram application."""
-    
+
     # 1. Setup Logging
     setup_logging()
     logger = logging.getLogger(__name__)
-    
+
     # 2. Load Configuration
     logger.info("Loading configuration...")
     config = Config()
@@ -48,9 +48,6 @@ def main() -> None:
     # 6. Run the Bot
     logger.info("Starting Telegram bot...")
     telegram_adapter.run()
-
-    # Performance considerations:
-    # - The main function initializes the core components of the application in the correct order.
 
 
 if __name__ == "__main__":
