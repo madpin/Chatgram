@@ -71,13 +71,13 @@ jobs:
       - name: Generate artifact attestation (ghcr.io)
         uses: actions/attest-build-provenance@v2
         with:
-          subject-name: ghcr.io/${{ env.IMAGE_NAME}}
+          subject-name: ghcr.io/${{ github.repository }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
 
       - name: Generate artifact attestation (hub.docker.com)
         uses: actions/attest-build-provenance@v2
         with:
-          subject-name: hub.docker.com/${{ env.IMAGE_NAME}}
+          subject-name: hub.docker.com/chatgram
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
