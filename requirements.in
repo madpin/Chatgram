@@ -1,0 +1,10 @@
+# pyTelegramBotAPI
+python-telegram-bot==13.5
+pyyaml
+# sqlite3
+openai
+python-dotenv
+nicegui
+sqlalchemy
+pymongo
+logfire[sqlalchemy]
