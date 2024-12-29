@@ -160,6 +160,6 @@ cython_debug/
 .idea/
 .vscode/
 
-personas.yml
+# personas.yml
 *.db
 codes.md
