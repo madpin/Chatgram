@@ -23,6 +23,7 @@ def setup_logging() -> None:
 
 def main() -> None:
     """Entry point for the ChatGram application."""
+    
     # 1. Setup Logging
     setup_logging()
     logger = logging.getLogger(__name__)
