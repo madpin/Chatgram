@@ -163,3 +163,4 @@ cython_debug/
 # personas.yml
 *.db
 codes.md
+secret.key
